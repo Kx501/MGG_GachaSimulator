@@ -1,0 +1,1415 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>幻想少女公会招募模拟器</title>
+    <style>
+        :root {
+            --color-bg: #f0f2f5;
+            --color-container: #fff;
+            --color-text: #333;
+            --color-heading: #2c3e50;
+            --color-filter-bg: #fdfdfd;
+            --color-filter-border: #e2e8f0;
+            --color-tag-bg: #fff;
+            --color-tag-border: #cbd5e1;
+            --color-tag-active-bg: #3498db;
+            --color-tag-active-text: #fff;
+            --color-tag-active-border: #2980b9;
+            --color-tag-hover-bg: #f0f9ff;
+            --color-tag-hover-border: #3498db;
+            --color-stats-bg: #e0f2fe;
+            --color-stats-text: #0369a1;
+            --color-stats-border: #3498db;
+            --color-th-bg: #475569;
+            --color-th-text: #fff;
+            --color-td-border: #f1f5f9;
+            --color-gold-header-bg: #fff7ed;
+            --color-gold-header-border: #f97316;
+            --color-purple-header-bg: #faf5ff;
+            --color-purple-header-border: #a855f7;
+            --color-combo-name: #005eff;
+            --color-rarity-3: #e67e22;
+            --color-rarity-2: #8e44ad;
+            --color-rarity-1: #358fd8;
+            --color-rarity-0: #0FB80F;
+            --color-reset-bg: #ef4444;
+            --color-reset-hover: #dc2626;
+            --color-guarantee-gold-bg: #e67e22;
+            --color-guarantee-purple-bg: #8e44ad;
+            --color-badge-bg: #64748b;
+            --color-no-data: #94a3b8;
+            --color-label: #64748b;
+            --shadow-container: 0 4px 20px rgba(0, 0, 0, 0.08);
+            --radius-container: 12px;
+            --radius-filter: 8px;
+            --radius-tag: 4px;
+            --radius-badge: 3px;
+            --radius-table-wrapper: 8px;
+            --radius-btn: 4px;
+            --radius-guarantee: 4px;
+            --transition-tag: all 0.2s;
+            --font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", "Noto Sans SC", system-ui, sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-family);
+            background: var(--color-bg);
+            padding: 20px;
+            color: var(--color-text);
+            line-height: 1.6;
+            margin: 0;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            background: var(--color-container);
+            padding: 25px;
+            border-radius: var(--radius-container);
+            box-shadow: var(--shadow-container);
+        }
+
+        .header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        h2 {
+            text-align: center;
+            color: var(--color-heading);
+            margin: 0;
+            flex: 1;
+            min-width: 120px;
+            font-size: 1.4rem;
+        }
+
+        .btn-reset {
+            padding: 8px 18px;
+            background: var(--color-reset-bg);
+            color: white;
+            border: none;
+            border-radius: var(--radius-btn);
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            white-space: nowrap;
+            transition: background 0.2s, transform 0.1s;
+            letter-spacing: 0.02em;
+            flex-shrink: 0;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+        }
+        .btn-reset:hover {
+            background: var(--color-reset-hover);
+            transform: translateY(-1px);
+        }
+        .btn-reset:active {
+            background: #b91c1c;
+            transform: scale(0.96);
+        }
+
+        /* 标签选择区 */
+        .filter-section {
+            background: var(--color-filter-bg);
+            border: 1px solid var(--color-filter-border);
+            border-radius: var(--radius-filter);
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        .filter-group {
+            margin-bottom: 10px;
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+        }
+        .filter-group:last-child {
+            margin-bottom: 0;
+        }
+        .filter-label {
+            font-weight: 600;
+            width: 60px;
+            min-width: 60px;
+            padding-top: 6px;
+            color: var(--color-label);
+            font-size: 13px;
+            letter-spacing: 0.03em;
+            flex-shrink: 0;
+        }
+        .tags-container {
+            flex: 1;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .tag {
+            padding: 6px 12px;
+            background: var(--color-tag-bg);
+            border: 1.5px solid var(--color-tag-border);
+            border-radius: var(--radius-tag);
+            cursor: pointer;
+            font-size: 13px;
+            transition: var(--transition-tag);
+            user-select: none;
+            white-space: nowrap;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+            font-weight: 500;
+            letter-spacing: 0.02em;
+            min-height: 34px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .tag:hover {
+            border-color: var(--color-tag-hover-border);
+            background: var(--color-tag-hover-bg);
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(52, 152, 219, 0.12);
+        }
+        .tag:active {
+            transform: scale(0.95);
+            transition: transform 0.08s;
+        }
+        .tag.active {
+            background: var(--color-tag-active-bg);
+            color: var(--color-tag-active-text);
+            border-color: var(--color-tag-active-border);
+            font-weight: 700;
+            box-shadow: 0 2px 6px rgba(52, 152, 219, 0.3);
+        }
+        .tag.active:hover {
+            background: #2d8fd4;
+            border-color: #1f6fa5;
+            box-shadow: 0 3px 10px rgba(52, 152, 219, 0.35);
+        }
+
+        /* 统计与结果 */
+        .result-stats {
+            margin-bottom: 15px;
+            font-size: 14px;
+            padding: 12px 16px;
+            background: var(--color-stats-bg);
+            border-radius: 6px;
+            color: var(--color-stats-text);
+            border-left: 4px solid var(--color-stats-border);
+            font-weight: 500;
+            letter-spacing: 0.02em;
+            line-height: 1.5;
+        }
+
+        .table-wrapper {
+            max-height: 600px;
+            overflow: auto;
+            border: 1px solid var(--color-filter-border);
+            border-radius: var(--radius-table-wrapper);
+            -webkit-overflow-scrolling: touch;
+            scroll-behavior: smooth;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--color-container);
+            min-width: 580px;
+        }
+        th {
+            background: var(--color-th-bg);
+            color: var(--color-th-text);
+            padding: 10px 10px;
+            text-align: left;
+            font-size: 13px;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            white-space: nowrap;
+            letter-spacing: 0.03em;
+            font-weight: 600;
+        }
+        td {
+            padding: 9px 10px;
+            border-bottom: 1px solid var(--color-td-border);
+            font-size: 14px;
+            vertical-align: middle;
+        }
+        tbody tr {
+            transition: background 0.15s;
+        }
+        tbody tr:hover {
+            background: #f8fafc;
+        }
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* 组合标题样式 */
+        .combo-header {
+            background: #f8fafc;
+        }
+        .combo-header td {
+            padding: 10px 10px;
+        }
+        .combo-header:hover {
+            background: #f1f5f9;
+        }
+        .tag-badge {
+            background: var(--color-badge-bg);
+            color: #fff;
+            padding: 2px 7px;
+            border-radius: var(--radius-badge);
+            margin-right: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.04em;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+        .combo-name {
+            color: var(--color-combo-name);
+            margin: 0 2px;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+        .combo-header-inner {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .combo-header-left {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            flex-wrap: wrap;
+            min-width: 0;
+        }
+        .combo-header-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-shrink: 0;
+            flex-wrap: wrap;
+            white-space: nowrap;
+        }
+        .combo-count {
+            color: #64748b;
+            font-size: 12px;
+            white-space: nowrap;
+        }
+
+        /* 稀有度高亮 */
+        .rarity-3 {
+            color: var(--color-rarity-3);
+            font-weight: bold;
+        }
+        .rarity-2 {
+            color: var(--color-rarity-2);
+            font-weight: bold;
+        }
+        .rarity-1 {
+            color: var(--color-rarity-1);
+        }
+        .rarity-0 {
+            color: var(--color-rarity-0);
+        }
+
+        .guarantee-tag {
+            margin-left: 2px;
+            font-weight: bold;
+            padding: 3px 10px;
+            border-radius: var(--radius-guarantee);
+            font-size: 11px;
+            color: #fff;
+            white-space: nowrap;
+            letter-spacing: 0.03em;
+            flex-shrink: 0;
+        }
+
+        /* 价值背景色 */
+        .gold-header {
+            background: var(--color-gold-header-bg) !important;
+            border-left: 5px solid var(--color-gold-header-border) !important;
+        }
+        .gold-header td {
+            border-left: none;
+        }
+        .purple-header {
+            background: var(--color-purple-header-bg) !important;
+            border-left: 5px solid var(--color-purple-header-border) !important;
+        }
+        .purple-header td {
+            border-left: none;
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 40px;
+            color: var(--color-no-data);
+        }
+
+        /* 角色名缩进 */
+        .role-name-cell {
+            padding-left: 25px !important;
+        }
+
+        /* ============ 移动端适配 ============ */
+        @media (max-width: 768px) {
+            body {
+                padding: 8px;
+            }
+
+            .container {
+                padding: 14px;
+                border-radius: 10px;
+                box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+            }
+
+            .header-row {
+                gap: 8px;
+                margin-bottom: 14px;
+            }
+
+            h2 {
+                font-size: 1.2rem;
+                text-align: left;
+                flex: 1;
+                min-width: 80px;
+            }
+
+            .btn-reset {
+                padding: 7px 14px;
+                font-size: 12px;
+                border-radius: 6px;
+                min-height: 36px;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            /* 标签选择区 */
+            .filter-section {
+                padding: 10px 12px;
+                margin-bottom: 12px;
+                border-radius: 6px;
+            }
+            .filter-group {
+                flex-direction: column;
+                gap: 4px;
+                margin-bottom: 8px;
+            }
+            .filter-group:last-child {
+                margin-bottom: 0;
+            }
+            .filter-label {
+                width: 100%;
+                min-width: unset;
+                padding-top: 0;
+                font-size: 12px;
+                padding-bottom: 2px;
+                letter-spacing: 0.04em;
+            }
+            .tags-container {
+                gap: 5px;
+            }
+            .tag {
+                padding: 7px 13px;
+                font-size: 12px;
+                border-radius: 6px;
+                min-height: 38px;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                border-width: 1.5px;
+            }
+            .tag:active {
+                transform: scale(0.93);
+            }
+
+            /* 统计栏 */
+            .result-stats {
+                font-size: 12px;
+                padding: 10px 12px;
+                margin-bottom: 10px;
+                border-left-width: 3px;
+                line-height: 1.4;
+                border-radius: 5px;
+            }
+
+            /* 表格容器 */
+            .table-wrapper {
+                max-height: 50vh;
+                border-radius: 6px;
+                -webkit-overflow-scrolling: touch;
+            }
+            table {
+                min-width: 540px;
+                font-size: 13px;
+                table-layout: fixed;
+            }
+            /* 小屏：首列角色名留宽，后五列收窄（与 PC 共存：仅 max-width:768px 内生效） */
+            thead th:nth-child(1) {
+                width: 30%;
+            }
+            thead th:nth-child(n + 2) {
+                width: 14%;
+            }
+            tbody td:nth-child(1) {
+                overflow-wrap: anywhere;
+                word-break: break-word;
+            }
+            thead th:nth-child(n + 2),
+            tbody td:nth-child(n + 2) {
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+            th {
+                padding: 8px 7px;
+                font-size: 11px;
+                letter-spacing: 0.02em;
+            }
+            td {
+                padding: 7px 7px;
+                font-size: 12px;
+            }
+            .role-name-cell {
+                padding-left: 16px !important;
+            }
+
+            /* 组合标题 */
+            .combo-header td {
+                padding: 8px 7px;
+            }
+            .combo-header-inner {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 6px;
+            }
+            .combo-header-left {
+                gap: 3px;
+            }
+            .combo-header-right {
+                gap: 6px;
+                width: 100%;
+                justify-content: flex-start;
+            }
+            .tag-badge {
+                font-size: 10px;
+                padding: 2px 6px;
+                margin-right: 4px;
+            }
+            .combo-name {
+                font-size: 12px;
+                margin: 0 1px;
+            }
+            .guarantee-tag {
+                font-size: 10px;
+                padding: 2px 8px;
+                margin-left: 0;
+            }
+            .combo-count {
+                font-size: 11px;
+            }
+
+            /* 稀有度数字 */
+            td[style*="font-weight:bold"] {
+                font-size: 13px;
+            }
+
+            /* 无数据提示 */
+            .no-data {
+                padding: 30px 15px;
+                font-size: 13px;
+            }
+        }
+
+        /* 超小屏幕 (≤400px) */
+        @media (max-width: 400px) {
+            body {
+                padding: 4px;
+            }
+            .container {
+                padding: 10px;
+                border-radius: 8px;
+            }
+            h2 {
+                font-size: 1.05rem;
+            }
+            .btn-reset {
+                padding: 6px 10px;
+                font-size: 11px;
+                min-height: 32px;
+                border-radius: 5px;
+            }
+            .tag {
+                padding: 6px 10px;
+                font-size: 11px;
+                min-height: 34px;
+                border-radius: 5px;
+            }
+            .tags-container {
+                gap: 4px;
+            }
+            .filter-section {
+                padding: 8px 10px;
+            }
+            .result-stats {
+                font-size: 11px;
+                padding: 8px 10px;
+            }
+            table {
+                min-width: 480px;
+            }
+            th {
+                padding: 6px 5px;
+                font-size: 10px;
+            }
+            td {
+                padding: 5px 5px;
+                font-size: 11px;
+            }
+            .role-name-cell {
+                padding-left: 12px !important;
+            }
+            .combo-name {
+                font-size: 11px;
+            }
+            .tag-badge {
+                font-size: 9px;
+                padding: 1px 5px;
+            }
+            .guarantee-tag {
+                font-size: 9px;
+                padding: 2px 6px;
+            }
+            .combo-count {
+                font-size: 10px;
+            }
+            .table-wrapper {
+                max-height: 45vh;
+            }
+        }
+
+        .ocr-section {
+            background: #f8fafc;
+            border: 1px dashed #cbd5e1;
+            border-radius: 8px;
+            padding: 12px 15px;
+            margin-bottom: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            gap: 10px;
+        }
+        .ocr-actions {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 10px;
+        }
+        .ocr-btn {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 13px;
+            cursor: pointer;
+            transition: background 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .ocr-btn:hover {
+            background: #2980b9;
+        }
+        .ocr-btn:active {
+            transform: scale(0.96);
+        }
+        .ocr-btn:disabled {
+            background: #94a3b8;
+            cursor: not-allowed;
+        }
+        .ocr-status {
+            font-size: 13px;
+            color: #475569;
+            font-weight: 500;
+        }
+        .ocr-config-wrap {
+            font-size: 13px;
+            color: #334155;
+        }
+        .ocr-config-wrap summary {
+            cursor: pointer;
+            font-weight: 600;
+            color: #475569;
+            user-select: none;
+        }
+        .ocr-config-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 8px 12px;
+            margin-top: 10px;
+            align-items: end;
+        }
+        .ocr-config-grid label {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            font-size: 12px;
+            color: #64748b;
+        }
+        .ocr-config-grid input,
+        .ocr-config-grid select,
+        .ocr-config-grid textarea {
+            font-size: 13px;
+            padding: 6px 8px;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            background: #fff;
+            box-sizing: border-box;
+            width: 100%;
+        }
+        .ocr-config-grid textarea {
+            font-family: ui-monospace, monospace;
+            resize: vertical;
+            min-height: 44px;
+        }
+        .ocr-reset-mini {
+            background: #e2e8f0;
+            color: #334155;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            height: fit-content;
+            align-self: end;
+        }
+        .ocr-reset-mini:hover {
+            background: #cbd5e1;
+        }
+        @media (max-width: 768px) {
+            .ocr-section {
+                padding: 10px 12px;
+            }
+            .ocr-btn {
+                font-size: 12px;
+                padding: 6px 12px;
+            }
+            .ocr-status {
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header-row">
+            <h2>组合方案</h2>
+            <button class="btn-reset" onclick="resetTags()">重置选择</button>
+        </div>
+
+        <div class="ocr-section">
+            <div class="ocr-actions">
+                <button class="ocr-btn" id="ocrBtn" type="button" onclick="document.getElementById('ocrInput').click()">可上传截图</button>
+                <input type="file" id="ocrInput" accept="image/*" style="display:none" onchange="handleOCRFile(this)">
+                <span class="ocr-status" id="ocrStatus"></span>
+            </div>
+            <details class="ocr-config-wrap">
+                <summary>OCR 参数</summary>
+                <div class="ocr-config-grid">
+                    <label>裁切模式
+                        <select id="ocrCropMode">
+                            <option value="relative">比例框</option>
+                            <option value="full">整图</option>
+                        </select>
+                    </label>
+                    <label>x (0~1)
+                        <input type="number" id="ocrRelX" min="0" max="1" step="0.01">
+                    </label>
+                    <label>y (0~1)
+                        <input type="number" id="ocrRelY" min="0" max="1" step="0.01">
+                    </label>
+                    <label>宽 (0~1)
+                        <input type="number" id="ocrRelW" min="0" max="1" step="0.01">
+                    </label>
+                    <label>高 (0~1)
+                        <input type="number" id="ocrRelH" min="0" max="1" step="0.01">
+                    </label>
+                    <label>PSM（逗号分隔）
+                        <input type="text" id="ocrPsm" placeholder="11 或 11,12" autocomplete="off">
+                    </label>
+                    <label style="grid-column: 1 / -1;">宽高比分段 JSON
+                        <textarea id="ocrAspectJson" placeholder='[{"min":1.8,"max":2.4,"rel":{"x":0.08,"y":0.34,"w":0.84,"h":0.42}}]'></textarea>
+                    </label>
+                    <button type="button" class="ocr-reset-mini" onclick="resetOcrDefaults()">恢复默认</button>
+                </div>
+            </details>
+        </div>
+
+        <div class="filter-section" id="filters">
+            <!-- 动态生成 -->
+        </div>
+
+        <div class="result-stats" id="stats">请点击上方标签进行价值分析（支持 1-3 词条组合）</div>
+
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th width="20%">角色名</th>
+                        <th>职业</th>
+                        <th>种族</th>
+                        <th>属性</th>
+                        <th>地区</th>
+                        <th>稀有度</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                    <tr><td colspan="6" class="no-data">未选择任何标签</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+    <script>
+        /* OCR：裁切(relative 比例框 | full 整屏) → 灰度 → Otsu；PSM 列表依次识别，原文拼接后逐字匹配。
+           cropRel 为相对整图 0~1；cropRelByAspect 按 ih/iw 选用不同 rel。配置见页面「OCR 参数」，存 localStorage。 */
+        const OCR_STORAGE_KEY = 'mgg_gacha_ocr_cfg_v1';
+        const OCR_DEFAULT = {
+            cropMode: 'relative',
+            cropRel: { x: 0.08, y: 0.34, w: 0.84, h: 0.42 },
+            cropRelByAspect: [],
+            psmList: ['11']
+        };
+        function cloneOcrDefault() {
+            return typeof structuredClone === 'function'
+                ? structuredClone(OCR_DEFAULT)
+                : JSON.parse(JSON.stringify(OCR_DEFAULT));
+        }
+
+        let ocrConfig = cloneOcrDefault();
+
+        function mergeOcrLoaded(raw) {
+            const d = cloneOcrDefault();
+            if (!raw || typeof raw !== 'object') return d;
+            const out = { ...d, ...raw };
+            out.cropRel = { ...d.cropRel, ...(raw.cropRel && typeof raw.cropRel === 'object' ? raw.cropRel : {}) };
+            out.cropRelByAspect = Array.isArray(raw.cropRelByAspect) ? raw.cropRelByAspect : d.cropRelByAspect;
+            out.psmList = Array.isArray(raw.psmList) && raw.psmList.length
+                ? raw.psmList.map(String)
+                : d.psmList;
+            if (raw.cropMode !== 'relative' && raw.cropMode !== 'full') out.cropMode = d.cropMode;
+            return out;
+        }
+
+        function loadOcrFromStorage() {
+            try {
+                const s = localStorage.getItem(OCR_STORAGE_KEY);
+                if (s) ocrConfig = mergeOcrLoaded(JSON.parse(s));
+            } catch (e) { /* ignore */ }
+        }
+
+        function saveOcrToStorage() {
+            try {
+                localStorage.setItem(OCR_STORAGE_KEY, JSON.stringify(ocrConfig));
+            } catch (e) { /* ignore */ }
+        }
+
+        function clamp01(v) {
+            const n = parseFloat(v);
+            if (Number.isNaN(n)) return 0;
+            return Math.max(0, Math.min(1, n));
+        }
+
+        function readDomToOcrConfig() {
+            const modeEl = document.getElementById('ocrCropMode');
+            ocrConfig.cropMode = (modeEl && modeEl.value === 'full') ? 'full' : 'relative';
+            ocrConfig.cropRel = {
+                x: clamp01(document.getElementById('ocrRelX') && document.getElementById('ocrRelX').value),
+                y: clamp01(document.getElementById('ocrRelY') && document.getElementById('ocrRelY').value),
+                w: clamp01(document.getElementById('ocrRelW') && document.getElementById('ocrRelW').value),
+                h: clamp01(document.getElementById('ocrRelH') && document.getElementById('ocrRelH').value)
+            };
+            const psmStr = (document.getElementById('ocrPsm') && document.getElementById('ocrPsm').value || '').trim();
+            const parts = psmStr.split(/[,，\s]+/).filter(Boolean);
+            ocrConfig.psmList = parts.length ? parts.map(String) : ['11'];
+            const aj = document.getElementById('ocrAspectJson');
+            const rawJ = aj ? aj.value.trim() : '';
+            if (!rawJ) {
+                ocrConfig.cropRelByAspect = [];
+            } else {
+                try {
+                    const parsed = JSON.parse(rawJ);
+                    ocrConfig.cropRelByAspect = Array.isArray(parsed) ? parsed : [];
+                } catch (e) {
+                    ocrConfig.cropRelByAspect = [];
+                }
+            }
+        }
+
+        function applyOcrToDom() {
+            const modeEl = document.getElementById('ocrCropMode');
+            if (modeEl) modeEl.value = ocrConfig.cropMode === 'full' ? 'full' : 'relative';
+            const rx = document.getElementById('ocrRelX');
+            const ry = document.getElementById('ocrRelY');
+            const rw = document.getElementById('ocrRelW');
+            const rh = document.getElementById('ocrRelH');
+            if (rx) rx.value = ocrConfig.cropRel.x;
+            if (ry) ry.value = ocrConfig.cropRel.y;
+            if (rw) rw.value = ocrConfig.cropRel.w;
+            if (rh) rh.value = ocrConfig.cropRel.h;
+            const psm = document.getElementById('ocrPsm');
+            if (psm) psm.value = ocrConfig.psmList.join(',');
+            const aj = document.getElementById('ocrAspectJson');
+            if (aj) aj.value = JSON.stringify(ocrConfig.cropRelByAspect);
+        }
+
+        function bindOcrConfigInputs() {
+            const ids = ['ocrCropMode', 'ocrRelX', 'ocrRelY', 'ocrRelW', 'ocrRelH', 'ocrPsm', 'ocrAspectJson'];
+            ids.forEach(id => {
+                const el = document.getElementById(id);
+                if (!el) return;
+                el.addEventListener('change', () => {
+                    readDomToOcrConfig();
+                    saveOcrToStorage();
+                });
+                if (el.tagName === 'TEXTAREA' || el.type === 'number' || el.type === 'text') {
+                    el.addEventListener('input', () => {
+                        readDomToOcrConfig();
+                        saveOcrToStorage();
+                    });
+                }
+            });
+        }
+
+        function resetOcrDefaults() {
+            ocrConfig = cloneOcrDefault();
+            applyOcrToDom();
+            saveOcrToStorage();
+        }
+
+        // 固化的 XLSX 数据
+        const allData = [
+            { "角色名": "冰蛛女王", "职业": "射手", "种族": "生灵", "属性": "水系", "地区": "雪原", "稀有度": 3 },
+            { "角色名": "辰龙", "职业": "战士", "种族": "生灵", "属性": "水系", "地区": "沙滩", "稀有度": 3 },
+            { "角色名": "大地魔女", "职业": "法师", "种族": "生灵", "属性": "地系", "地区": "山脉", "稀有度": 3 },
+            { "角色名": "地灵使者", "职业": "法师", "种族": "生灵", "属性": "地系", "地区": "平原", "稀有度": 3 },
+            { "角色名": "风行游侠", "职业": "射手", "种族": "生灵", "属性": "风系", "地区": "平原", "稀有度": 3 },
+            { "角色名": "核心魔偶", "职业": "战士", "种族": "器灵", "属性": "地系", "地区": "山脉", "稀有度": 3 },
+            { "角色名": "荒漠舞姬", "职业": "射手", "种族": "生灵", "属性": "火系", "地区": "沙漠", "稀有度": 3 },
+            { "角色名": "黄蜂魔女", "职业": "法师", "种族": "生灵", "属性": "暗系", "地区": "平原", "稀有度": 3 },
+            { "角色名": "黄金之女", "职业": "战士", "种族": "魔灵", "属性": "光系", "地区": "山脉", "稀有度": 3 },
+            { "角色名": "巨灵之枪", "职业": "战士", "种族": "器灵", "属性": "地系", "地区": "沙漠", "稀有度": 3 },
+            { "角色名": "军团统领", "职业": "战士", "种族": "生灵", "属性": "地系", "地区": "平原", "稀有度": 3 },
+            { "角色名": "林中仙女", "职业": "牧师", "种族": "神灵", "属性": "光系", "地区": "森林", "稀有度": 3 },
+            { "角色名": "蛮牛勇士", "职业": "战士", "种族": "生灵", "属性": "火系", "地区": "平原", "稀有度": 3 },
+            { "角色名": "魔术大师", "职业": "法师", "种族": "生灵", "属性": "暗系", "地区": "森林", "稀有度": 3 },
+            { "角色名": "宁静水灵", "职业": "牧师", "种族": "魔灵", "属性": "水系", "地区": "海洋", "稀有度": 3 },
+            { "角色名": "圣剑之灵", "职业": "战士", "种族": "器炅", "属性": "光系", "地区": "森林", "稀有度": 3 },
+            { "角色名": "史莱姆王", "职业": "法师", "种族": "魔灵", "属性": "光系", "地区": "森林", "稀有度": 3 },
+            { "角色名": "水晶菇娘", "职业": "法师", "种族": "生灵", "属性": "光系", "地区": "山脉", "稀有度": 3 },
+            { "角色名": "淘气恶魔", "职业": "战士", "种族": "神灵", "属性": "暗系", "地区": "森林", "稀有度": 3 },
+            { "角色名": "无瑕贤者", "职业": "牧师", "种族": "生灵", "属性": "光系", "地区": "沙滩", "稀有度": 3 },
+            { "角色名": "星界邪神", "职业": "法师", "种族": "神灵", "属性": "暗系", "地区": "星界", "稀有度": 3 },
+            { "角色名": "星灵射手", "职业": "射手", "种族": "神灵", "属性": "光系", "地区": "星界", "稀有度": 3 },
+            { "角色名": "雪人骑士", "职业": "战士", "种族": "魔灵", "属性": "水系", "地区": "雪原", "稀有度": 3 },
+            { "角色名": "鹰身公主", "职业": "射手", "种族": "生灵", "属性": "风系", "地区": "平原", "稀有度": 3 },
+            { "角色名": "幽暗龙女", "职业": "战士", "种族": "生灵", "属性": "暗系", "地区": "森林", "稀有度": 3 },
+            { "角色名": "幽灵船长", "职业": "战士", "种族": "亡灵", "属性": "暗系", "地区": "海洋", "稀有度": 3 },
+            { "角色名": "孢子女巫", "职业": "法师", "种族": "生灵", "属性": "地系", "地区": "山脉", "稀有度": 2 },
+            { "角色名": "爆炸菇娘", "职业": "射手", "种族": "生灵", "属性": "火系", "地区": "山脉", "稀有度": 2 },
+            { "角色名": "波涛守卫", "职业": "战士", "种族": "魔灵", "属性": "水系", "地区": "海洋", "稀有度": 2 },
+            { "角色名": "啵啵", "职业": "法师", "种族": "生灵", "属性": "光系", "地区": "平原", "稀有度": 2 },
+            { "角色名": "丛林猎手", "职业": "射手", "种族": "生灵", "属性": "风系", "地区": "森林", "稀有度": 2 },
+            { "角色名": "恶狼勇士", "职业": "战士", "种族": "生灵", "属性": "风系", "地区": "平原", "稀有度": 2 },
+            { "角色名": "翡翠魔偶", "职业": "法师", "种族": "器灵", "属性": "风系", "地区": "山脉", "稀有度": 2 },
+            { "角色名": "哥布林祭司", "职业": "牧师", "种族": "生灵", "属性": "风系", "地区": "平原", "稀有度": 2 },
+            { "角色名": "古树妖精", "职业": "法师", "种族": "生灵", "属性": "地系", "地区": "森林", "稀有度": 2 },
+            { "角色名": "诡秘之影", "职业": "射手", "种族": "生灵", "属性": "暗系", "地区": "平原", "稀有度": 2 },
+            { "角色名": "胡椒", "职业": "战士", "种族": "生灵", "属性": "地系", "地区": "平原", "稀有度": 2 },
+            { "角色名": "荒野猎人", "职业": "战士", "种族": "生灵", "属性": "火系", "地区": "沙漠", "稀有度": 2 },
+            { "角色名": "荒野兽王", "职业": "战士", "种族": "生灵", "属性": "风系", "地区": "平原", "稀有度": 2 },
+            { "角色名": "魂能法师", "职业": "法师", "种族": "生灵", "属性": "暗系", "地区": "森林", "稀有度": 2 },
+            { "角色名": "火焰女妖", "职业": "战士", "种族": "魔灵", "属性": "火系", "地区": "山脉", "稀有度": 2 },
+            { "角色名": "荆棘树妖", "职业": "法师", "种族": "生灵", "属性": "地系", "地区": "森林", "稀有度": 2 },
+            { "角色名": "巨大史莱姆", "职业": "战士", "种族": "魔灵", "属性": "水系", "地区": "森林", "稀有度": 2 },
+            { "角色名": "巨魔监工", "职业": "牧师", "种族": "生灵", "属性": "地系", "地区": "山脉", "稀有度": 2 },
+            { "角色名": "巨岩炮手", "职业": "射手", "种族": "魔灵", "属性": "地系", "地区": "山脉", "稀有度": 2 },
+            { "角色名": "飓风使者", "职业": "法师", "种族": "魔灵", "属性": "风系", "地区": "平原", "稀有度": 2 },
+            { "角色名": "军团铁骑", "职业": "战士", "种族": "生灵", "属性": "火系", "地区": "平原", "稀有度": 2 },
+            { "角色名": "狂风战士", "职业": "战士", "种族": "魔灵", "属性": "风系", "地区": "平原", "稀有度": 2 },
+            { "角色名": "狼灵射手", "职业": "射手", "种族": "生灵", "属性": "暗系", "地区": "平原", "稀有度": 2 },
+            { "角色名": "流水法师", "职业": "法师", "种族": "魔灵", "属性": "水系", "地区": "海洋", "稀有度": 2 },
+            { "角色名": "鎏金射手", "职业": "射手", "种族": "魔灵", "属性": "光系", "地区": "山脉", "稀有度": 2 },
+            { "角色名": "绿伞菇娘", "职业": "牧师", "种族": "生灵", "属性": "风系", "地区": "山脉", "稀有度": 2 },
+            { "角色名": "蛮牛祭司", "职业": "牧师", "种族": "生灵", "属性": "地系", "地区": "平原", "稀有度": 2 },
+            { "角色名": "蛮牛剑豪", "职业": "战士", "种族": "生灵", "属性": "地系", "地区": "平原", "稀有度": 2 },
+            { "角色名": "迷失盾灵", "职业": "战士", "种族": "器灵", "属性": "光系", "地区": "森林", "稀有度": 2 },
+            { "角色名": "魔术侍从", "职业": "射手", "种族": "生灵", "属性": "暗系", "地区": "森林", "稀有度": 2 },
+            { "角色名": "牧鱼少女", "职业": "法师", "种族": "生灵", "属性": "水系", "地区": "沙滩", "稀有度": 2 },
+            { "角色名": "娜迦射手", "职业": "射手", "种族": "生灵", "属性": "水系", "地区": "海洋", "稀有度": 2 },
+            { "角色名": "奶糖", "职业": "射手", "种族": "生灵", "属性": "火系", "地区": "平原", "稀有度": 2 },
+            { "角色名": "破碎剑灵", "职业": "战士", "种族": "器灵", "属性": "暗系", "地区": "森林", "稀有度": 2 },
+            { "角色名": "日耀祭司", "职业": "法师", "种族": "生灵", "属性": "光系", "地区": "沙漠", "稀有度": 2 },
+            { "角色名": "狩猎勇士", "职业": "战士", "种族": "生灵", "属性": "火系", "地区": "平原", "稀有度": 2 },
+            { "角色名": "水族统领", "职业": "战士", "种族": "生灵", "属性": "水系", "地区": "沙滩", "稀有度": 2 },
+            { "角色名": "星界守卫", "职业": "战士", "种族": "神灵", "属性": "暗系", "地区": "星界", "稀有度": 2 },
+            { "角色名": "学院导师", "职业": "法师", "种族": "生灵", "属性": "火系", "地区": "森林", "稀有度": 2 },
+            { "角色名": "岩石守卫", "职业": "战士", "种族": "魔灵", "属性": "地系", "地区": "山脉", "稀有度": 2 },
+            { "角色名": "椰树投手", "职业": "射手", "种族": "生灵", "属性": "风系", "地区": "沙滩", "稀有度": 2 },
+            { "角色名": "佣兵枪手", "职业": "射手", "种族": "生灵", "属性": "地系", "地区": "沙漠", "稀有度": 2 },
+            { "角色名": "幽灵大副", "职业": "战士", "种族": "亡灵", "属性": "暗系", "地区": "海洋", "稀有度": 2 },
+            { "角色名": "鱼人先锋", "职业": "战士", "种族": "生灵", "属性": "风系", "地区": "沙滩", "稀有度": 2 },
+            { "角色名": "月影祭司", "职业": "法师", "种族": "生灵", "属性": "暗系", "地区": "沙漠", "稀有度": 2 },
+            { "角色名": "战争祭司", "职业": "牧师", "种族": "生灵", "属性": "火系", "地区": "平原", "稀有度": 2 },
+            { "角色名": "招财", "职业": "牧师", "种族": "生灵", "属性": "光系", "地区": "平原", "稀有度": 2 },
+            { "角色名": "植物学者", "职业": "牧师", "种族": "生灵", "属性": "地系", "地区": "森林", "稀有度": 2 },
+            { "角色名": "白银歌姬", "职业": "牧师", "种族": "魔灵", "属性": "光系", "地区": "山脉", "稀有度": 1 },
+            { "角色名": "孢子射手", "职业": "射手", "种族": "生灵", "属性": "风系", "地区": "山脉", "稀有度": 1 },
+            { "角色名": "孢子卫士", "职业": "战士", "种族": "生灵", "属性": "地系", "地区": "山脉", "稀有度": 1 },
+            { "角色名": "贝壳少女", "职业": "射手", "种族": "生灵", "属性": "水系", "地区": "沙滩", "稀有度": 1 },
+            { "角色名": "大探险家", "职业": "战士", "种族": "生灵", "属性": "光系", "地区": "山脉", "稀有度": 1 },
+            { "角色名": "哥布林法师", "职业": "法师", "种族": "生灵", "属性": "火系", "地区": "平原", "稀有度": 1 },
+            { "角色名": "哥布林战士", "职业": "战士", "种族": "生灵", "属性": "火系", "地区": "平原", "稀有度": 1 },
+            { "角色名": "荒漠守卫", "职业": "战士", "种族": "生灵", "属性": "光系", "地区": "沙漢", "稀有度": 1 },
+            { "角色名": "疾行闪光", "职业": "战士", "种族": "生灵", "属性": "光系", "地区": "平原", "稀有度": 1 },
+            { "角色名": "巨力少女", "职业": "战士", "种族": "生灵", "属性": "地系", "地区": "平原", "稀有度": 1 },
+            { "角色名": "巨魔守卫", "职业": "战士", "种族": "生灵", "属性": "地系", "地区": "山脉", "稀有度": 1 },
+            { "角色名": "巨魔投手", "职业": "射手", "种族": "生灵", "属性": "地系", "地区": "山脉", "稀有度": 1 },
+            { "角色名": "军团射手", "职业": "射手", "种族": "生灵", "属性": "风系", "地区": "平原", "稀有度": 1 },
+            { "角色名": "蓝鲨教官", "职业": "战士", "种族": "生灵", "属性": "水系", "地区": "海洋", "稀有度": 1 },
+            { "角色名": "狼灵战士", "职业": "战士", "种族": "生灵", "属性": "火系", "地区": "平原", "稀有度": 1 },
+            { "角色名": "狼族猎手", "职业": "射手", "种族": "生灵", "属性": "火系", "地区": "平原", "稀有度": 1 },
+            { "角色名": "狼族先知", "职业": "法师", "种族": "生灵", "属性": "地系", "地区": "平原", "稀有度": 1 },
+            { "角色名": "迷失之魂", "职业": "法师", "种族": "亡灵", "属性": "暗系", "地区": "森林", "稀有度": 1 },
+            { "角色名": "闪灵少女", "职业": "战士", "种族": "生灵", "属性": "风系", "地区": "平原", "稀有度": 1 },
+            { "角色名": "史莱姆侍女", "职业": "牧师", "种族": "魔灵", "属性": "光系", "地区": "森林", "稀有度": 1 },
+            { "角色名": "树人守卫", "职业": "战士", "种族": "生灵", "属性": "地系", "地区": "森林", "稀有度": 1 },
+            { "角色名": "水族士兵", "职业": "战士", "种族": "生灵", "属性": "水系", "地区": "沙滩", "稀有度": 1 },
+            { "角色名": "武者学徒", "职业": "战士", "种族": "生灵", "属性": "地系", "地区": "森林", "稀有度": 1 },
+            { "角色名": "星象学徒", "职业": "法师", "种族": "生灵", "属性": "暗系", "地区": "平原", "稀有度": 1 },
+            { "角色名": "学院牧师", "职业": "牧师", "种族": "生灵", "属性": "光系", "地区": "森林", "稀有度": 1 },
+            { "角色名": "学院学徒", "职业": "法师", "种族": "生灵", "属性": "火系", "地区": "森林", "稀有度": 1 },
+            { "角色名": "妖精弓灵", "职业": "射手", "种族": "器灵", "属性": "风系", "地区": "森林", "稀有度": 1 },
+            { "角色名": "遗迹猎人", "职业": "法师", "种族": "生灵", "属性": "火系", "地区": "沙漠", "稀有度": 1 },
+            { "角色名": "银鳞鲛姬", "职业": "牧师", "种族": "生灵", "属性": "水系", "地区": "海洋", "稀有度": 1 },
+            { "角色名": "银鳞守卫", "职业": "战士", "种族": "生灵", "属性": "水系", "地区": "海洋", "稀有度": 1 },
+            { "角色名": "鹰身少女", "职业": "战士", "种族": "生灵", "属性": "风系", "地区": "平原", "稀有度": 1 },
+            { "角色名": "幽灵枪手", "职业": "射手", "种族": "亡灵", "属性": "暗系", "地区": "海洋", "稀有度": 1 },
+            { "角色名": "幽灵水手", "职业": "战士", "种族": "亡灵", "属性": "暗系", "地区": "海洋", "稀有度": 1 },
+            { "角色名": "游荡人偶", "职业": "战士", "种族": "器灵", "属性": "暗系", "地区": "山脉", "稀有度": 1 },
+            { "角色名": "兵蜂猎手", "职业": "射手", "种族": "生灵", "属性": "暗系", "地区": "平原", "稀有度": 0 },
+            { "角色名": "兵蜂战士", "职业": "战士", "种族": "生灵", "属性": "暗系", "地区": "平原", "稀有度": 0 },
+            { "角色名": "沉默猎手", "职业": "战士", "种族": "生灵", "属性": "风系", "地区": "森林", "稀有度": 0 },
+            { "角色名": "哥布林猎手", "职业": "射手", "种族": "生灵", "属性": "风系", "地区": "平原", "稀有度": 0 },
+            { "角色名": "哥布林哨兵", "职业": "战士", "种族": "生灵", "属性": "风系", "地区": "平原", "稀有度": 0 },
+            { "角色名": "荒漠盗贼", "职业": "战士", "种族": "生灵", "属性": "火系", "地区": "沙漠", "稀有度": 0 },
+            { "角色名": "荒漠猎手", "职业": "战士", "种族": "生灵", "属性": "火系", "地区": "沙漠", "稀有度": 0 },
+            { "角色名": "军团祭司", "职业": "牧师", "种族": "生灵", "属性": "风系", "地区": "平原", "稀有度": 0 },
+            { "角色名": "军团哨兵", "职业": "战士", "种族": "生灵", "属性": "风系", "地区": "平原", "稀有度": 0 },
+            { "角色名": "矿洞采集者", "职业": "射手", "种族": "生灵", "属性": "地系", "地区": "山脉", "稀有度": 0 },
+            { "角色名": "矿洞淘金者", "职业": "战士", "种族": "生灵", "属性": "地系", "地区": "山脉", "稀有度": 0 },
+            { "角色名": "蓝灵菇娘", "职业": "法师", "种族": "生灵", "属性": "水系", "地区": "山脉", "稀有度": 0 },
+            { "角色名": "迷幻菇娘", "职业": "牧师", "种族": "生灵", "属性": "暗系", "地区": "山脉", "稀有度": 0 },
+            { "角色名": "史莱姆", "职业": "战士", "种族": "魔灵", "属性": "火系", "地区": "森林", "稀有度": 0 },
+            { "角色名": "史莱姆法师", "职业": "法师", "种族": "魔灵", "属性": "水系", "地区": "森林", "稀有度": 0 },
+            { "角色名": "史莱姆牧师", "职业": "牧师", "种族": "魔灵", "属性": "光系", "地区": "森林", "稀有度": 0 },
+            { "角色名": "野猫猎手", "职业": "射手", "种族": "生灵", "属性": "地系", "地区": "森林", "稀有度": 0 },
+            { "角色名": "鱼人祭司", "职业": "牧师", "种族": "生灵", "属性": "水系", "地区": "海洋", "稀有度": 0 },
+            { "角色名": "鱼人哨兵", "职业": "战士", "种族": "生灵", "属性": "水系", "地区": "海洋", "稀有度": 0 },
+            { "角色名": "鱼人战士", "职业": "战士", "种族": "生灵", "属性": "水系", "地区": "海洋", "稀有度": 0 }
+        ];
+
+        const filterCols = ['职业', '种族', '属性', '地区'];
+        let selectedTags = [];
+        let allTagValues = [];
+
+        window.onload = () => {
+            loadOcrFromStorage();
+            applyOcrToDom();
+            bindOcrConfigInputs();
+
+            const filterDiv = document.getElementById('filters');
+            filterCols.forEach(col => {
+                const uniqueValues = [...new Set(allData.map(item => item[col]).filter(Boolean))];
+                allTagValues = allTagValues.concat(uniqueValues);
+                const group = document.createElement('div');
+                group.className = 'filter-group';
+                group.innerHTML = `<div class="filter-label">${col}</div>`;
+                const tagsContainer = document.createElement('div');
+                tagsContainer.className = 'tags-container';
+                uniqueValues.forEach(val => {
+                    const tag = document.createElement('span');
+                    tag.className = 'tag';
+                    tag.innerText = val;
+                    tag.dataset.val = val;
+                    tag.onclick = () => toggleTag(val, tag);
+                    tagsContainer.appendChild(tag);
+                });
+                group.appendChild(tagsContainer);
+                filterDiv.appendChild(group);
+            });
+            allTagValues = [...new Set(allTagValues)];
+        };
+
+        function toggleTag(val, element) {
+            const index = selectedTags.indexOf(val);
+            if (index > -1) {
+                selectedTags.splice(index, 1);
+                element.classList.remove('active');
+            } else {
+                if (selectedTags.length >= 9) {
+                    alert("最多选择 9 个词条进行组合计算");
+                    return;
+                }
+                selectedTags.push(val);
+                element.classList.add('active');
+            }
+            applyFilters();
+        }
+
+        function resetTags() {
+            selectedTags = [];
+            document.querySelectorAll('.tag').forEach(t => t.classList.remove('active'));
+            applyFilters();
+        }
+
+        function getCombinations(array, k) {
+            let result = [];
+            const f = (start, prev) => {
+                if (prev.length === k) {
+                    result.push(prev);
+                    return;
+                }
+                for (let i = start; i < array.length; i++) {
+                    f(i + 1, [...prev, array[i]]);
+                }
+            };
+            f(0, []);
+            return result;
+        }
+
+        function applyFilters() {
+            const container = document.getElementById('tableBody');
+            const stats = document.getElementById('stats');
+            const rarityNameMap = { 0: '普通', 1: '稀有', 2: '史诗', 3: '传说' }; // 稀有度文字映射
+
+            if (selectedTags.length === 0) {
+                container.innerHTML = '<tr><td colspan="6" class="no-data">未选择任何标签</td></tr>';
+                stats.innerText = "请点击上方标签进行价值分析（支持 1-3 词条组合）";
+                return;
+            }
+
+            let rawCombos = [];
+            for (let i = 1; i <= Math.min(selectedTags.length, 3); i++) {
+                rawCombos.push(...getCombinations(selectedTags, i));
+            }
+
+            let comboResults = rawCombos.map(combo => {
+                const filtered = allData.filter(role => {
+                    const roleValues = Object.values(role).map(String);
+                    return combo.every(tag => roleValues.includes(String(tag)));
+                });
+
+                if (filtered.length === 0) return null;
+
+                const rarities = filtered.map(r => parseInt(r['稀有度']) || 0);
+                const minRarity = Math.min(...rarities);
+
+                let weight = 0;
+                if (minRarity >= 3) weight = 3000;
+                else if (minRarity >= 2) weight = 2000;
+                weight += (combo.length * 10);
+
+                return {
+                    combo,
+                    filtered: filtered.sort((a, b) => b['稀有度'] - a['稀有度']),
+                    minRarity,
+                    weight
+                };
+            }).filter(item => item !== null);
+
+            comboResults.sort((a, b) => b.weight - a.weight);
+
+            let finalHTML = "";
+            let highValueCount = 0;
+
+            comboResults.forEach(item => {
+                const isGold = item.minRarity >= 3;
+                const isPurple = item.minRarity >= 2;
+                if (isPurple) highValueCount++;
+
+                const headerClass = isGold ? 'gold-header' : (isPurple ? 'purple-header' : '');
+
+                finalHTML += `
+                    <tr class="combo-header ${headerClass}">
+                        <td colspan="6">
+                            <div class="combo-header-inner">
+                                <span class="combo-header-left">
+                                    <span class="tag-badge">${item.combo.length}词条</span>
+                                    ${item.combo.map(t => `<span class="combo-name">[${t}]</span>`).join(' + ')}
+                                </span>
+                                <span class="combo-header-right">
+                                    ${isGold ? '<span class="guarantee-tag" style="background:#e67e22;">🔥 顶级招募</span>' : ''}
+                                    ${(isPurple && !isGold) ? '<span class="guarantee-tag" style="background:#8e44ad;">💎 资深保底</span>' : ''}
+                                    <span class="combo-count">人数: ${item.filtered.length}</span>
+                                </span>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+
+                item.filtered.forEach(row => {
+                    const r = row['稀有度'];
+                    const rClass = `rarity-${r}`;
+                    finalHTML += `
+                        <tr>
+                            <td class="${rClass} role-name-cell">${row['角色名']}</td>
+                            <td>${row['职业']}</td>
+                            <td>${row['种族']}</td>
+                            <td>${row['属性']}</td>
+                            <td>${row['地区']}</td>
+                            <td class="rarity-${r}">${rarityNameMap[r] ?? r}</td>
+                        </tr>
+                    `;
+                });
+            });
+
+            container.innerHTML = finalHTML || '<tr><td colspan="6" class="no-data">当前组合无匹配角色</td></tr>';
+            stats.innerText = `分析完毕：共发现 ${highValueCount} 组具有保底价值的组合`;
+        }
+
+        let tesseractWorker = null;
+
+        function resolveCropRel(img) {
+            const iw = img.naturalWidth;
+            const ih = img.naturalHeight;
+            const r = ih / Math.max(iw, 1);
+            const rows = ocrConfig.cropRelByAspect;
+            if (rows && rows.length) {
+                for (let i = 0; i < rows.length; i++) {
+                    const row = rows[i];
+                    if (row && row.rel && r >= row.min && r <= row.max) return row.rel;
+                }
+            }
+            return ocrConfig.cropRel;
+        }
+
+        function canvasRelativeCropFromImage(img, rel) {
+            const iw = img.naturalWidth;
+            const ih = img.naturalHeight;
+            let sx = Math.round(rel.x * iw);
+            let sy = Math.round(rel.y * ih);
+            let sw = Math.round(rel.w * iw);
+            let sh = Math.round(rel.h * ih);
+            sx = Math.max(0, Math.min(sx, iw - 1));
+            sy = Math.max(0, Math.min(sy, ih - 1));
+            sw = Math.max(1, Math.min(sw, iw - sx));
+            sh = Math.max(1, Math.min(sh, ih - sy));
+            const c = document.createElement('canvas');
+            c.width = sw;
+            c.height = sh;
+            c.getContext('2d').drawImage(img, sx, sy, sw, sh, 0, 0, sw, sh);
+            return c;
+        }
+
+        function otsuPickThreshold(hist, px) {
+            let sumAll = 0;
+            for (let t = 0; t < 256; t++) sumAll += t * hist[t];
+            let sumB = 0;
+            let wB = 0;
+            let maxVar = -1;
+            let thr = 127;
+            for (let t = 0; t < 256; t++) {
+                wB += hist[t];
+                if (wB === 0) continue;
+                const wF = px - wB;
+                if (wF === 0) break;
+                sumB += t * hist[t];
+                const mB = sumB / wB;
+                const mF = (sumAll - sumB) / wF;
+                const between = wB * wF * (mB - mF) * (mB - mF);
+                if (between > maxVar) {
+                    maxVar = between;
+                    thr = t;
+                }
+            }
+            return thr;
+        }
+
+        function otsuThresholdFromGray(imageData) {
+            const d = imageData.data;
+            const hist = new Array(256).fill(0);
+            const px = d.length / 4;
+            for (let i = 0; i < d.length; i += 4) hist[d[i]]++;
+            return otsuPickThreshold(hist, px);
+        }
+
+        function preprocessForTesseract(file) {
+            return new Promise((resolve, reject) => {
+                const img = new Image();
+                const url = URL.createObjectURL(file);
+                img.onload = () => {
+                    URL.revokeObjectURL(url);
+                    let w;
+                    let h;
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    if (ocrConfig.cropMode === 'full') {
+                        w = img.naturalWidth;
+                        h = img.naturalHeight;
+                        canvas.width = w;
+                        canvas.height = h;
+                        ctx.drawImage(img, 0, 0);
+                    } else {
+                        const cropCanvas = canvasRelativeCropFromImage(img, resolveCropRel(img));
+                        w = cropCanvas.width;
+                        h = cropCanvas.height;
+                        canvas.width = w;
+                        canvas.height = h;
+                        ctx.drawImage(cropCanvas, 0, 0);
+                    }
+                    const imageData = ctx.getImageData(0, 0, w, h);
+                    const d = imageData.data;
+                    for (let i = 0; i < d.length; i += 4) {
+                        const g = 0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2];
+                        d[i] = d[i + 1] = d[i + 2] = g;
+                    }
+                    const thr = otsuThresholdFromGray(imageData);
+                    for (let i = 0; i < d.length; i += 4) {
+                        const v = d[i] > thr ? 255 : 0;
+                        d[i] = d[i + 1] = d[i + 2] = v;
+                        d[i + 3] = 255;
+                    }
+                    ctx.putImageData(imageData, 0, 0);
+                    resolve(canvas);
+                };
+                img.onerror = () => {
+                    URL.revokeObjectURL(url);
+                    reject(new Error('图片加载失败'));
+                };
+                img.src = url;
+            });
+        }
+
+        async function getTesseractWorker(statusEl) {
+            if (typeof Tesseract === 'undefined') {
+                throw new Error('Tesseract 脚本未加载');
+            }
+            if (tesseractWorker) return tesseractWorker;
+            if (statusEl) statusEl.textContent = '加载引擎与语言包…';
+            const worker = await Tesseract.createWorker('chi_sim', 1, {
+                workerPath: 'https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/worker.min.js',
+                corePath: 'https://cdn.jsdelivr.net/npm/tesseract.js-core@5/tesseract-core-lstm.wasm.js',
+                logger(m) {
+                    if (m.status === 'recognizing text' && statusEl) {
+                        const p = m.progress != null ? Math.round(m.progress * 100) + '%' : '';
+                        statusEl.textContent = '识别中… ' + p;
+                    }
+                }
+            });
+            tesseractWorker = worker;
+            return worker;
+        }
+
+        function matchTagsFromText(rawText) {
+            const matched = [];
+            const cleaned = rawText.replace(/[^\u4e00-\u9fa5a-zA-Z]/g, '');
+            allTagValues.forEach(tag => {
+                if (tag.length < 2 || matched.includes(tag)) return;
+                if ([...tag].every(ch => cleaned.includes(ch))) matched.push(tag);
+            });
+            return matched;
+        }
+
+        async function handleOCRFile(input) {
+            const file = input && input.files && input.files[0];
+            if (!file) return;
+            readDomToOcrConfig();
+            saveOcrToStorage();
+
+            const statusEl = document.getElementById('ocrStatus');
+            const btn = document.getElementById('ocrBtn');
+
+            if (!tesseractWorker) {
+                if (typeof Tesseract === 'undefined') {
+                    statusEl.textContent = '❌ Tesseract 脚本未加载';
+                    if (input) input.value = '';
+                    return;
+                }
+                const ok = window.confirm(
+                    '首次识别需联网下载 OCR 引擎与简体中文语言包（约2MB），是否继续？'
+                );
+                if (!ok) {
+                    statusEl.textContent = '已取消，未加载引擎';
+                    if (input) input.value = '';
+                    return;
+                }
+            }
+
+            btn.disabled = true;
+            try {
+                statusEl.textContent = '预处理…';
+                const src = await preprocessForTesseract(file);
+                const worker = await getTesseractWorker(statusEl);
+                const psmList = ocrConfig.psmList && ocrConfig.psmList.length ? ocrConfig.psmList : ['11'];
+                const parts = [];
+                for (let i = 0; i < psmList.length; i++) {
+                    const psm = psmList[i];
+                    statusEl.textContent = '识别中 (' + (i + 1) + '/' + psmList.length + ')…';
+                    await worker.setParameters({
+                        tessedit_pageseg_mode: psm,
+                        preserve_interword_spaces: '1'
+                    });
+                    const { data } = await worker.recognize(src);
+                    parts.push(data && data.text ? data.text : '');
+                }
+                const text = parts.join('\n');
+
+                resetTags();
+                const found = matchTagsFromText(text);
+                if (found.length > 0) {
+                    found.forEach(val => {
+                        if (selectedTags.length >= 9) return;
+                        if (selectedTags.includes(val)) return;
+                        selectedTags.push(val);
+                        document.querySelectorAll('.tag').forEach(tagEl => {
+                            if (tagEl.dataset.val === val) tagEl.classList.add('active');
+                        });
+                    });
+                    statusEl.textContent = '✅ 命中 ' + found.length + ' 个词条';
+                    applyFilters();
+                } else {
+                    statusEl.textContent = '⚠️ 未匹配到词条';
+                }
+            } catch (e) {
+                console.error(e);
+                const msg = e && e.message ? e.message : String(e);
+                statusEl.textContent = '❌ ' + msg.slice(0, 96);
+            } finally {
+                btn.disabled = false;
+                if (input) input.value = '';
+            }
+        }
+    </script>
+</body>
+</html>
