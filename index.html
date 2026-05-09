@@ -458,24 +458,6 @@
             table {
                 min-width: 540px;
                 font-size: 13px;
-                table-layout: fixed;
-            }
-            /* 小屏：首列角色名留宽，后五列收窄（与 PC 共存：仅 max-width:768px 内生效） */
-            thead th:nth-child(1) {
-                width: 30%;
-            }
-            thead th:nth-child(n + 2) {
-                width: 14%;
-            }
-            tbody td:nth-child(1) {
-                overflow-wrap: anywhere;
-                word-break: break-word;
-            }
-            thead th:nth-child(n + 2),
-            tbody td:nth-child(n + 2) {
-                overflow: hidden;
-                text-overflow: ellipsis;
-                white-space: nowrap;
             }
             th {
                 padding: 8px 7px;
@@ -572,7 +554,7 @@
                 padding: 8px 10px;
             }
             table {
-                min-width: 480px;
+                min-width: 360px;
             }
             th {
                 padding: 6px 5px;
@@ -774,7 +756,7 @@
             <table>
                 <thead>
                     <tr>
-                        <th width="20%">角色名</th>
+                        <th width="22%">角色名</th>
                         <th>职业</th>
                         <th>种族</th>
                         <th>属性</th>
