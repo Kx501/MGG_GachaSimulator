@@ -1,4 +1,4 @@
-# MGG_GachaSimulator
+# Monster Girls Guild GachaSimulator
 
 《幻想少女公会》每日免费招募组合模拟器：按词条筛选角色、估算组合保底价值；可选截图 OCR（浏览器本地识别）辅助勾选词条。
 
