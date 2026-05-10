@@ -88,7 +88,7 @@
         }
 
         h2 {
-            text-align: center;
+            text-align: left;
             color: var(--color-heading);
             margin: 0;
             flex: 1;
@@ -385,7 +385,6 @@
 
             h2 {
                 font-size: 1.2rem;
-                text-align: left;
                 flex: 1;
                 min-width: 80px;
             }
@@ -642,6 +641,13 @@
             color: #475569;
             user-select: none;
         }
+        .ocr-hint {
+            margin: 8px 0 0;
+            padding: 0;
+            font-size: 12px;
+            line-height: 1.45;
+            color: #64748b;
+        }
         .ocr-config-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
@@ -704,7 +710,7 @@
 <body>
     <div class="container">
         <div class="header-row">
-            <h2>组合方案</h2>
+            <h2>组合模拟</h2>
             <button class="btn-reset" onclick="resetTags()">重置选择</button>
         </div>
 
@@ -715,19 +721,14 @@
                 <span class="ocr-status" id="ocrStatus"></span>
             </div>
             <details class="ocr-config-wrap">
-                <summary>OCR 参数</summary>
+                <summary>OCR 参数（准确率一般）</summary>
+                <p class="ocr-hint">比例框：以画面<strong>中心</strong>为基准裁一块矩形，宽、高相对全屏 0~1。PSM：逗号分隔，常用 11；略糊尝试 11,12。</p>
                 <div class="ocr-config-grid">
                     <label>裁切模式
                         <select id="ocrCropMode">
                             <option value="relative">比例框</option>
-                            <option value="full">整图</option>
+                            <option value="full">全屏</option>
                         </select>
-                    </label>
-                    <label>x (0~1)
-                        <input type="number" id="ocrRelX" min="0" max="1" step="0.01">
-                    </label>
-                    <label>y (0~1)
-                        <input type="number" id="ocrRelY" min="0" max="1" step="0.01">
                     </label>
                     <label>宽 (0~1)
                         <input type="number" id="ocrRelW" min="0" max="1" step="0.01">
@@ -737,9 +738,6 @@
                     </label>
                     <label>PSM（逗号分隔）
                         <input type="text" id="ocrPsm" placeholder="11 或 11,12" autocomplete="off">
-                    </label>
-                    <label style="grid-column: 1 / -1;">宽高比分段 JSON
-                        <textarea id="ocrAspectJson" placeholder='[{"min":1.8,"max":2.4,"rel":{"x":0.08,"y":0.34,"w":0.84,"h":0.42}}]'></textarea>
                     </label>
                     <button type="button" class="ocr-reset-mini" onclick="resetOcrDefaults()">恢复默认</button>
                 </div>
@@ -773,13 +771,12 @@
 
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
     <script>
-        /* OCR：裁切(relative 比例框 | full 整屏) → 灰度 → Otsu；PSM 列表依次识别，原文拼接后逐字匹配。
-           cropRel 为相对整图 0~1；cropRelByAspect 按 ih/iw 选用不同 rel。配置见页面「OCR 参数」，存 localStorage。 */
+        /* OCR：裁切(relative 中心比例框 | full 全屏) → 灰度 → Otsu；PSM 列表依次识别，原文拼接后逐字匹配。
+           cropRel 仅存 w、h（0~1），位置由中心算出。配置见「OCR 参数」，存 localStorage。 */
         const OCR_STORAGE_KEY = 'mgg_gacha_ocr_cfg_v1';
         const OCR_DEFAULT = {
             cropMode: 'relative',
-            cropRel: { x: 0.08, y: 0.34, w: 0.84, h: 0.42 },
-            cropRelByAspect: [],
+            cropRel: { w: 0.84, h: 0.42 },
             psmList: ['11']
         };
         function cloneOcrDefault() {
@@ -790,12 +787,26 @@
 
         let ocrConfig = cloneOcrDefault();
 
+        function clamp01(v) {
+            const n = parseFloat(v);
+            if (Number.isNaN(n)) return 0;
+            return Math.max(0, Math.min(1, n));
+        }
+
+        function normalizeCropRel(obj) {
+            const d = cloneOcrDefault().cropRel;
+            if (!obj || typeof obj !== 'object') return d;
+            return {
+                w: clamp01(obj.w != null ? obj.w : d.w),
+                h: clamp01(obj.h != null ? obj.h : d.h)
+            };
+        }
+
         function mergeOcrLoaded(raw) {
             const d = cloneOcrDefault();
             if (!raw || typeof raw !== 'object') return d;
             const out = { ...d, ...raw };
-            out.cropRel = { ...d.cropRel, ...(raw.cropRel && typeof raw.cropRel === 'object' ? raw.cropRel : {}) };
-            out.cropRelByAspect = Array.isArray(raw.cropRelByAspect) ? raw.cropRelByAspect : d.cropRelByAspect;
+            out.cropRel = normalizeCropRel(raw.cropRel);
             out.psmList = Array.isArray(raw.psmList) && raw.psmList.length
                 ? raw.psmList.map(String)
                 : d.psmList;
@@ -816,57 +827,32 @@
             } catch (e) { /* ignore */ }
         }
 
-        function clamp01(v) {
-            const n = parseFloat(v);
-            if (Number.isNaN(n)) return 0;
-            return Math.max(0, Math.min(1, n));
-        }
-
         function readDomToOcrConfig() {
             const modeEl = document.getElementById('ocrCropMode');
             ocrConfig.cropMode = (modeEl && modeEl.value === 'full') ? 'full' : 'relative';
             ocrConfig.cropRel = {
-                x: clamp01(document.getElementById('ocrRelX') && document.getElementById('ocrRelX').value),
-                y: clamp01(document.getElementById('ocrRelY') && document.getElementById('ocrRelY').value),
                 w: clamp01(document.getElementById('ocrRelW') && document.getElementById('ocrRelW').value),
                 h: clamp01(document.getElementById('ocrRelH') && document.getElementById('ocrRelH').value)
             };
             const psmStr = (document.getElementById('ocrPsm') && document.getElementById('ocrPsm').value || '').trim();
             const parts = psmStr.split(/[,，\s]+/).filter(Boolean);
             ocrConfig.psmList = parts.length ? parts.map(String) : ['11'];
-            const aj = document.getElementById('ocrAspectJson');
-            const rawJ = aj ? aj.value.trim() : '';
-            if (!rawJ) {
-                ocrConfig.cropRelByAspect = [];
-            } else {
-                try {
-                    const parsed = JSON.parse(rawJ);
-                    ocrConfig.cropRelByAspect = Array.isArray(parsed) ? parsed : [];
-                } catch (e) {
-                    ocrConfig.cropRelByAspect = [];
-                }
-            }
         }
 
         function applyOcrToDom() {
             const modeEl = document.getElementById('ocrCropMode');
             if (modeEl) modeEl.value = ocrConfig.cropMode === 'full' ? 'full' : 'relative';
-            const rx = document.getElementById('ocrRelX');
-            const ry = document.getElementById('ocrRelY');
             const rw = document.getElementById('ocrRelW');
             const rh = document.getElementById('ocrRelH');
-            if (rx) rx.value = ocrConfig.cropRel.x;
-            if (ry) ry.value = ocrConfig.cropRel.y;
-            if (rw) rw.value = ocrConfig.cropRel.w;
-            if (rh) rh.value = ocrConfig.cropRel.h;
+            const cr = normalizeCropRel(ocrConfig.cropRel);
+            if (rw) rw.value = cr.w;
+            if (rh) rh.value = cr.h;
             const psm = document.getElementById('ocrPsm');
             if (psm) psm.value = ocrConfig.psmList.join(',');
-            const aj = document.getElementById('ocrAspectJson');
-            if (aj) aj.value = JSON.stringify(ocrConfig.cropRelByAspect);
         }
 
         function bindOcrConfigInputs() {
-            const ids = ['ocrCropMode', 'ocrRelX', 'ocrRelY', 'ocrRelW', 'ocrRelH', 'ocrPsm', 'ocrAspectJson'];
+            const ids = ['ocrCropMode', 'ocrRelW', 'ocrRelH', 'ocrPsm'];
             ids.forEach(id => {
                 const el = document.getElementById(id);
                 if (!el) return;
@@ -1182,18 +1168,13 @@
 
         let tesseractWorker = null;
 
-        function resolveCropRel(img) {
-            const iw = img.naturalWidth;
-            const ih = img.naturalHeight;
-            const r = ih / Math.max(iw, 1);
-            const rows = ocrConfig.cropRelByAspect;
-            if (rows && rows.length) {
-                for (let i = 0; i < rows.length; i++) {
-                    const row = rows[i];
-                    if (row && row.rel && r >= row.min && r <= row.max) return row.rel;
-                }
-            }
-            return ocrConfig.cropRel;
+        /** 移动端约定：词条区近画面中心，用宽、高相对全屏从中心裁切 */
+        function relFromCenter(size) {
+            const w = clamp01(size.w);
+            const h = clamp01(size.h);
+            const x = Math.max(0, (1 - w) / 2);
+            const y = Math.max(0, (1 - h) / 2);
+            return { x, y, w, h };
         }
 
         function canvasRelativeCropFromImage(img, rel) {
@@ -1263,7 +1244,7 @@
                         canvas.height = h;
                         ctx.drawImage(img, 0, 0);
                     } else {
-                        const cropCanvas = canvasRelativeCropFromImage(img, resolveCropRel(img));
+                        const cropCanvas = canvasRelativeCropFromImage(img, relFromCenter(normalizeCropRel(ocrConfig.cropRel)));
                         w = cropCanvas.width;
                         h = cropCanvas.height;
                         canvas.width = w;
@@ -1366,6 +1347,7 @@
                     parts.push(data && data.text ? data.text : '');
                 }
                 const text = parts.join('\n');
+                console.log('[OCR 原文]\n', text);
 
                 resetTags();
                 const found = matchTagsFromText(text);
