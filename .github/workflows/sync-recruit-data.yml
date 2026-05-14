@@ -1,0 +1,51 @@
+# 将「幻想少女公会招募图鉴.xlsx」同步进 index.html 的 allData，并提交。
+# 适用：仓库根目录即 Pages 根目录（含 index.html、xlsx、scripts/）。
+# 若在 monorepo 子目录，请改 workflow 里 paths / working-directory / 脚本参数。
+
+name: Sync recruit data from xlsx
+
+on:
+  push:
+    branches: [main, master]
+    paths:
+      - "幻想少女公会招募图鉴.xlsx"
+      - "scripts/sync_xlsx_to_index.py"
+      - ".github/workflows/sync-recruit-data.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: sync-recruit-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install deps
+        run: pip install openpyxl
+
+      - name: Sync xlsx → index.html
+        run: python scripts/sync_xlsx_to_index.py
+
+      - name: Commit if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          if git diff --staged --quiet; then
+            echo "index.html 无变化，跳过提交"
+          else
+            git commit -m "chore: sync allData from 幻想少女公会招募图鉴.xlsx"
+            git push
+          fi
