@@ -773,7 +773,9 @@
     <script>
         /* OCR：裁切(relative 中心比例框 | full 全屏) → 灰度 → Otsu；PSM 列表依次识别，原文拼接后逐字匹配。
            cropRel 仅存 w、h（0~1），位置由中心算出。配置见「OCR 参数」，存 localStorage。 */
-        const OCR_STORAGE_KEY = 'mgg_gacha_ocr_cfg_v1';
+        const OCR_STORAGE_KEY = 'recruit_ocr_v1';
+        /** 已同意联网加载 OCR 引擎；清除站点数据前不再弹窗 */
+        const OCR_ENGINE_OK_KEY = 'recruit_ocr_dl_v1';
         const OCR_DEFAULT = {
             cropMode: 'relative',
             cropRel: { w: 0.84, h: 0.42 },
@@ -1327,13 +1329,22 @@
                     if (input) input.value = '';
                     return;
                 }
-                const ok = window.confirm(
-                    '首次识别需联网下载 OCR 引擎与简体中文语言包（约2MB），是否继续？'
-                );
-                if (!ok) {
-                    statusEl.textContent = '已取消，未加载引擎';
-                    if (input) input.value = '';
-                    return;
+                let engineOk = false;
+                try {
+                    engineOk = localStorage.getItem(OCR_ENGINE_OK_KEY) === '1';
+                } catch (e) { /* 隐私模式等可能抛错 */ }
+                if (!engineOk) {
+                    const ok = window.confirm(
+                        '首次使用需要联网下载 OCR 引擎与简体中文语言包（约2MB）。是否继续？'
+                    );
+                    if (!ok) {
+                        statusEl.textContent = '已取消，未加载引擎';
+                        if (input) input.value = '';
+                        return;
+                    }
+                    try {
+                        localStorage.setItem(OCR_ENGINE_OK_KEY, '1');
+                    } catch (e) { /* 无法写入则下次仍会询问 */ }
                 }
             }
 
