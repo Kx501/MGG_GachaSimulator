@@ -51,8 +51,6 @@
             --radius-guarantee: 4px;
             --transition-tag: all 0.2s;
             --font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", "Noto Sans SC", system-ui, sans-serif;
-            /* 页脚在文档流中占用高度（margin+padding+border+一行字），仅小屏用于补偿表格 max-height */
-            --page-footer-block: 52px;
         }
 
         * {
@@ -89,13 +87,30 @@
             margin-bottom: 20px;
         }
 
-        h2 {
+        .header-title {
+            display: flex;
+            align-items: baseline;
+            flex-wrap: wrap;
+            gap: 0.2em 0.45em;
+            flex: 1;
+            min-width: 120px;
+        }
+        .header-title h2 {
             text-align: left;
             color: var(--color-heading);
             margin: 0;
-            flex: 1;
-            min-width: 120px;
             font-size: 1.4rem;
+        }
+        .repo-link {
+            font-size: 0.72em;
+            font-weight: 500;
+            color: #64748b;
+            text-decoration: none;
+            white-space: nowrap;
+        }
+        .repo-link:hover {
+            color: var(--color-tag-active-bg);
+            text-decoration: underline;
         }
 
         .btn-reset {
@@ -385,10 +400,11 @@
                 margin-bottom: 14px;
             }
 
-            h2 {
-                font-size: 1.2rem;
-                flex: 1;
+            .header-title {
                 min-width: 80px;
+            }
+            .header-title h2 {
+                font-size: 1.2rem;
             }
 
             .btn-reset {
@@ -452,7 +468,7 @@
 
             /* 表格容器 */
             .table-wrapper {
-                max-height: calc(50vh + var(--page-footer-block));
+                max-height: 50vh;
                 border-radius: 6px;
                 -webkit-overflow-scrolling: touch;
             }
@@ -583,7 +599,7 @@
                 font-size: 10px;
             }
             .table-wrapper {
-                max-height: calc(45vh + var(--page-footer-block));
+                max-height: 45vh;
             }
         }
 
@@ -695,24 +711,6 @@
         .ocr-reset-mini:hover {
             background: #cbd5e1;
         }
-        .page-footer {
-            margin-top: 20px;
-            padding-top: 14px;
-            border-top: 1px solid var(--color-filter-border);
-            text-align: center;
-            font-size: 12px;
-            color: #94a3b8;
-        }
-        .page-footer a {
-            color: #64748b;
-            text-decoration: none;
-            font-weight: 500;
-        }
-        .page-footer a:hover {
-            color: var(--color-tag-active-bg);
-            text-decoration: underline;
-        }
-
         @media (max-width: 768px) {
             .ocr-section {
                 padding: 10px 12px;
@@ -730,7 +728,10 @@
 <body>
     <div class="container">
         <div class="header-row">
-            <h2>组合模拟</h2>
+            <div class="header-title">
+                <h2>组合模拟</h2>
+                <a id="repoLink" class="repo-link" href="#" target="_blank" rel="noopener noreferrer" hidden>(GitHub)</a>
+            </div>
             <button class="btn-reset" onclick="resetTags()">重置选择</button>
         </div>
 
@@ -788,9 +789,6 @@
             </table>
         </div>
 
-        <footer class="page-footer">
-            <a id="repoLink" href="#" target="_blank" rel="noopener noreferrer">GitHub 仓库</a>
-        </footer>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
@@ -904,7 +902,6 @@
         // 固化的 XLSX 数据（中间块由 scripts/sync_xlsx_to_index.py 根据表格覆盖）
         const allData = [
             /* >>> SYNC_XLSX_DATA_BEGIN */
-            {"角色名": "冰蛛女王", "职业": "射手", "种族": "生灵", "属性": "水系", "地区": "雪原", "稀有度": 3},
             {"角色名": "辰龙", "职业": "战士", "种族": "生灵", "属性": "水系", "地区": "沙滩", "稀有度": 3},
             {"角色名": "大地魔女", "职业": "法师", "种族": "生灵", "属性": "地系", "地区": "山脉", "稀有度": 3},
             {"角色名": "地灵使者", "职业": "法师", "种族": "生灵", "属性": "地系", "地区": "平原", "稀有度": 3},
@@ -1060,13 +1057,13 @@
         function initRepoLink() {
             const url = resolveRepoUrl();
             const link = document.getElementById('repoLink');
-            const foot = document.querySelector('.page-footer');
-            if (!link || !foot) return;
+            if (!link) return;
             if (!url) {
-                foot.hidden = true;
+                link.hidden = true;
                 return;
             }
             link.href = url;
+            link.hidden = false;
         }
 
         window.onload = () => {
