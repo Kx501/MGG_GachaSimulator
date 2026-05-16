@@ -693,6 +693,24 @@
         .ocr-reset-mini:hover {
             background: #cbd5e1;
         }
+        .page-footer {
+            margin-top: 20px;
+            padding-top: 14px;
+            border-top: 1px solid var(--color-filter-border);
+            text-align: center;
+            font-size: 12px;
+            color: #94a3b8;
+        }
+        .page-footer a {
+            color: #64748b;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .page-footer a:hover {
+            color: var(--color-tag-active-bg);
+            text-decoration: underline;
+        }
+
         @media (max-width: 768px) {
             .ocr-section {
                 padding: 10px 12px;
@@ -767,6 +785,10 @@
                 </tbody>
             </table>
         </div>
+
+        <footer class="page-footer">
+            <a id="repoLink" href="#" target="_blank" rel="noopener noreferrer">GitHub 仓库</a>
+        </footer>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
@@ -1021,7 +1043,33 @@
         let selectedTags = [];
         let allTagValues = [];
 
+        /** 仓库地址；留空则在 *.github.io 上按路径自动推断 */
+        const REPO_URL = '';
+
+        function resolveRepoUrl() {
+            if (REPO_URL) return REPO_URL;
+            const host = location.hostname;
+            if (!host.endsWith('.github.io')) return '';
+            const user = host.slice(0, -'.github.io'.length);
+            const first = location.pathname.split('/').filter(Boolean)[0];
+            const repo = first || (user + '.github.io');
+            return 'https://github.com/' + user + '/' + repo;
+        }
+
+        function initRepoLink() {
+            const url = resolveRepoUrl();
+            const link = document.getElementById('repoLink');
+            const foot = document.querySelector('.page-footer');
+            if (!link || !foot) return;
+            if (!url) {
+                foot.hidden = true;
+                return;
+            }
+            link.href = url;
+        }
+
         window.onload = () => {
+            initRepoLink();
             loadOcrFromStorage();
             applyOcrToDom();
             bindOcrConfigInputs();
