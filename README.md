@@ -28,4 +28,6 @@
 
 fork仓库，编辑文件并提交推送。
 
-欢迎提交 Issue 和 Pull Request！
+> 注：修改 `.xlsx` 会自动同步到 `index.html` 中。
+
+**欢迎提交 Issue 和 Pull Request！**
